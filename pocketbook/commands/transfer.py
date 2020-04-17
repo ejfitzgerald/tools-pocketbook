@@ -93,9 +93,10 @@ def run_transfer(args):
     print('TX: 0x{} submitted'.format(tx_digest))
 
     # submit the transaction
-    print('Waiting for transaction to be confirmed...')
-    api.sync(tx_digest)
-    print('Waiting for transaction to be confirmed...complete')
+    if not args.async:
+        print('Waiting for transaction to be confirmed...')
+        api.sync(tx_digest)
+        print('Waiting for transaction to be confirmed...complete')
 
     # determine if there is a block explorer link to be printed
     explorer_link = None

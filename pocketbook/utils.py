@@ -50,9 +50,19 @@ def get_balance(api, address):
     return from_canonical(balance)
 
 
-def get_stake(api, addresss):
-    stake = int(api.tokens.stake(addresss))
+def get_stake(api, address):
+    stake = int(api.tokens.stake(address))
     return from_canonical(stake)
+
+
+def get_cooling_down_stake(api, address):
+    cooldown_stake = 0
+
+    val = api.tokens.stake_cooldown(address)
+    for block, stake in val['cooldownStake'].items():
+        cooldown_stake += stake
+
+    return from_canonical(cooldown_stake)
 
 
 def create_api(name: str):
@@ -75,3 +85,21 @@ def checked_address(address):
     except:
         raise RuntimeError(
             'Unable to convert {} into and address. The address needs to be a base58 encoded value'.format(address))
+
+
+def get_strong_password():
+    from getpass import getpass
+    from fetchai.ledger.crypto import Entity
+
+    while True:
+        password = getpass('Enter password for key...: ')
+        if not Entity.is_strong_password(password):
+            print('Password too simple, try again')
+            continue
+
+        confirm = getpass('Confirm password for key.: ')
+        if password != confirm:
+            print('Passwords did not match, try again')
+            continue
+
+        return password

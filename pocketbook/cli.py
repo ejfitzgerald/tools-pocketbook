@@ -8,6 +8,9 @@ from .commands.delete import run_delete
 from .commands.list import run_list
 from .commands.rename import run_rename
 from .commands.transfer import run_transfer
+from .commands.import_key import run_import
+from .commands.stake import run_stake
+from .commands.destake import run_destake
 from .disclaimer import display_disclaimer
 from .utils import NetworkUnavailableError, checked_address, to_canonical, MINIMUM_FRACTIONAL_FET
 
@@ -36,6 +39,7 @@ def parse_commandline():
                                  help='The destination address either a name in the address book or an address')
     parser_transfer.add_argument('amount', type=to_canonical, help='The amount of FET to be transferred')
     parser_transfer.add_argument('--from', dest='from_address', help='The signing account, required for multi-sig')
+    parser_transfer.add_argument('--async', action='store_true', help='Do not wait for the transaction to be confirmed')
     parser_transfer.add_argument('-R', '--charge-rate', type=to_canonical, default=to_canonical(MINIMUM_FRACTIONAL_FET),
                                  help='The charge rate associated with this transaction')
     parser_transfer.add_argument('signers', nargs='+', help='The series of key names needed to sign the transaction')
@@ -49,6 +53,22 @@ def parse_commandline():
     parser_delete = subparsers.add_parser('delete', aliases=['rm'], help='Deletes an address or key from the wallet')
     parser_delete.add_argument('name', help='The name of the account to remove')
     parser_delete.set_defaults(handler=run_delete)
+
+    parser_import = subparsers.add_parser('import', help='Import and existing binary key into the tool')
+    parser_import.add_argument('name', help='The name of the new key')
+    parser_import.add_argument('path', help='The path to the key to be imported')
+    parser_import.set_defaults(handler=run_import)
+
+    parser_stake = subparsers.add_parser('stake', help='Stake tokens into the network')
+    parser_stake.add_argument('key', help='The name of the key to destake')
+    parser_stake.add_argument('amount', help='The amount of stake to be destaked')
+    parser_stake.set_defaults(handler=run_stake)
+
+    parser_destake = subparsers.add_parser('destake', help='Destake from the network')
+    parser_destake.add_argument('key', help='The name of the key to destake')
+    parser_destake.add_argument('amount', help='The amount of stake to be destaked')
+    parser_destake.add_argument('--async', action='store_true', help='Do not wait for the transaction to be confirmed')
+    parser_destake.set_defaults(handler=run_destake)
 
     return parser, parser.parse_args()
 

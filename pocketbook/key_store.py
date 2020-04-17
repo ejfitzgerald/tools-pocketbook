@@ -75,7 +75,8 @@ class KeyStore:
             raise DuplicateKeyNameError()
 
         key_file_path = self._format_key_path(name)
-        assert not os.path.exists(key_file_path)
+        if os.path.exists(key_file_path):
+            raise RuntimeError('Corrupted DB: Key Path Exists: {}'.format(key_file_path))
 
         # dump out the file
         with open(key_file_path, 'w') as key_file:

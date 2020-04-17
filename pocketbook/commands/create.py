@@ -1,8 +1,7 @@
 def run_create(args):
-    from getpass import getpass
     from fetchai.ledger.crypto import Entity
     from pocketbook.key_store import KeyStore
-
+    from pocketbook.utils import get_strong_password
 
     key_store = KeyStore()
     existing_keys = set(key_store.list_keys())
@@ -16,17 +15,6 @@ def run_create(args):
         break
 
     # prompt the user for the password
-    while True:
-        password = getpass('Enter password for key...: ')
-        if not Entity.is_strong_password(password):
-            print('Password too simple, try again')
-            continue
-
-        confirm = getpass('Confirm password for key.: ')
-        if password != confirm:
-            print('Passwords did not match, try again')
-            continue
-
-        break
+    password = get_strong_password()
 
     key_store.add_key(name, password, Entity())

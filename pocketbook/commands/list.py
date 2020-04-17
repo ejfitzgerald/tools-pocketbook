@@ -9,7 +9,7 @@ def run_list(args):
     from pocketbook.address_book import AddressBook
     from pocketbook.key_store import KeyStore
     from pocketbook.table import Table
-    from pocketbook.utils import create_api, get_balance, get_stake, token_amount
+    from pocketbook.utils import create_api, get_balance, get_stake, token_amount, get_cooling_down_stake
 
     # the latest version of SDK will generate warning because we are using the staking API
     warnings.simplefilter('ignore')
@@ -23,26 +23,28 @@ def run_list(args):
     else:
 
         # select the columns
-        cols = ['name', 'type', 'balance', 'stake']
+        cols = ['name', 'type', 'balance', 'stake', 'cooldown']
         if args.verbose:
             cols.append('address')
 
         api = create_api(args.network)
 
         table = Table(cols)
-        for key in keys:
+        for key in sorted(keys):
             if not _should_display(key, args.pattern):
                 continue
 
             address = key_store.lookup_address(key)
             balance = get_balance(api, address)
             stake = get_stake(api, address)
+            cooldown_stake = get_cooling_down_stake(api, address)
 
             row_data = {
                 'name': key,
                 'type': 'key',
                 'balance': token_amount(balance),
                 'stake': token_amount(stake),
+                'cooldown': token_amount(cooldown_stake),
                 'address': str(address),
             }
 
@@ -54,12 +56,14 @@ def run_list(args):
 
             balance = get_balance(api, address)
             stake = get_stake(api, address)
+            cooldown_stake = get_cooling_down_stake(api, address)
 
             row_data = {
                 'name': name,
                 'type': 'addr',
                 'balance': token_amount(balance),
                 'stake': token_amount(stake),
+                'cooldown': token_amount(cooldown_stake),
                 'address': str(address),
             }
 
